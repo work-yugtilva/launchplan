@@ -1,0 +1,10 @@
+CREATE INDEX IF NOT EXISTS idx_ideas_slug           ON ideas(slug);
+CREATE INDEX IF NOT EXISTS idx_ideas_iotd            ON ideas(is_idea_of_day, idea_of_day_date DESC);
+CREATE INDEX IF NOT EXISTS idx_ideas_published       ON ideas(published);
+CREATE INDEX IF NOT EXISTS idx_ideas_category        ON ideas(category);
+CREATE INDEX IF NOT EXISTS idx_ideas_business_model  ON ideas(business_model);
+CREATE INDEX IF NOT EXISTS idx_trends_growth         ON trends(growth_pct DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_community_idea        ON community_signals(idea_id);
+CREATE INDEX IF NOT EXISTS idx_saved_user            ON saved_ideas(user_id);
+CREATE INDEX IF NOT EXISTS idx_agent_user            ON agent_runs(user_id);
+CREATE INDEX IF NOT EXISTS idx_agent_status          ON agent_runs(status);
