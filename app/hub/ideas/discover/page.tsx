@@ -240,7 +240,12 @@ function IdeaDiscoverCard({ idea, index }: { idea: Idea; index: number }) {
         }}
       >
         <button
-          onClick={e => e.preventDefault()}
+          onClick={async (e) => {
+            e.preventDefault()
+            try {
+              await fetch(`/api/hub/ideas/${idea.id}/save`, { method: 'POST' })
+            } catch { /* silent */ }
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -260,7 +265,15 @@ function IdeaDiscoverCard({ idea, index }: { idea: Idea; index: number }) {
           Save
         </button>
         <button
-          onClick={e => e.preventDefault()}
+          onClick={async (e) => {
+            e.preventDefault()
+            const url = `${window.location.origin}/ideas/${idea.slug}`
+            if (navigator.share) {
+              await navigator.share({ title: idea.title, url })
+            } else {
+              await navigator.clipboard.writeText(url)
+            }
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -400,6 +413,7 @@ export default function IdeasDiscoverPage() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
   function buildUrl(currentOffset: number, currentSearch: string, currentFilters: Filters) {
     const params = new URLSearchParams()
@@ -418,7 +432,12 @@ export default function IdeasDiscoverPage() {
     setOffset(0)
     try {
       const res = await fetch(buildUrl(0, currentSearch, currentFilters))
-      if (!res.ok) return
+      if (!res.ok) {
+        setFetchError('Failed to load ideas. Please try again.')
+        setLoading(false)
+        return
+      }
+      setFetchError(null)
       const data = await res.json()
       setIdeas(data.ideas ?? [])
       setHasMore(data.hasMore ?? false)
@@ -683,6 +702,19 @@ export default function IdeasDiscoverPage() {
             )}
           </div>
         </div>
+
+        {/* Fetch error */}
+        {fetchError && (
+          <div className="text-center py-8" style={{ marginBottom: '16px' }}>
+            <p style={{ color: '#c0392b', marginBottom: '8px', fontFamily: 'var(--font-dm-sans), sans-serif', fontSize: '0.9375rem' }}>{fetchError}</p>
+            <button
+              onClick={() => fetchIdeas(debouncedSearch, filters)}
+              style={{ textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-dm-sans), sans-serif', fontSize: '0.875rem', color: '#5f5750' }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Grid */}
         <div className="ideas-grid">

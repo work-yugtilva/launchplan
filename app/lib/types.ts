@@ -276,7 +276,15 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_agent_run: {
+        Args: {
+          p_user_id: string
+          p_idea_input: string
+          p_total_steps?: number
+          [key: string]: unknown
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

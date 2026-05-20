@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
     .eq('published', true)
 
   if (search) {
-    query = query.or(`title.ilike.%${search}%,tagline.ilike.%${search}%`)
+    const escaped = search.replace(/[(),]/g, (c: string) => `\\${c}`)
+    query = query.or(`title.ilike.%${escaped}%,tagline.ilike.%${escaped}%`)
   }
 
   if (business_model) {
@@ -72,7 +73,8 @@ export async function GET(request: NextRequest) {
     .range(offset, offset + limit - 1)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('[api/hub/ideas]', error)
+    return NextResponse.json({ error: 'Failed to fetch ideas' }, { status: 500 })
   }
 
   const total = count ?? 0
