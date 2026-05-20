@@ -131,14 +131,19 @@ const ALLOWED_TREND_SORTS = ['growth_pct', 'volume'] as const
 
 export async function queryTrends(options: {
   limit?: number
+  offset?: number
   sort_by?: string | null
   category?: string | null
-} = {}): Promise<{ trends: Trend[]; total: number }> {
+  search?: string | null
+} = {}): Promise<{ trends: Trend[]; total: number; hasMore: boolean }> {
   const DEFAULT_LIMIT = 4
-  const MAX_LIMIT = 20
+  const MAX_LIMIT = 50
 
   const rawLimit = parseInt(String(options.limit ?? DEFAULT_LIMIT), 10)
   const limit = isNaN(rawLimit) ? DEFAULT_LIMIT : Math.min(Math.max(1, rawLimit), MAX_LIMIT)
+
+  const rawOffset = parseInt(String(options.offset ?? 0), 10)
+  const offset = isNaN(rawOffset) ? 0 : Math.max(0, rawOffset)
 
   const rawSort = options.sort_by ?? DEFAULT_TREND_SORT
   const sortBy = (ALLOWED_TREND_SORTS as readonly string[]).includes(rawSort)
@@ -146,36 +151,49 @@ export async function queryTrends(options: {
     : DEFAULT_TREND_SORT
 
   const category = options.category ?? null
+  const search = options.search ? options.search.slice(0, 200) : null
 
   const supabase = await createClient()
 
   let query = supabase
     .from('trends')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order(sortBy, { ascending: false, nullsFirst: false })
-    .limit(limit)
 
   if (category) query = query.eq('category', category)
+  if (search) {
+    const escaped = search.replace(/[%_]/g, (c) => `\\${c}`)
+    query = query.ilike('keyword', `%${escaped}%`)
+  }
 
-  const { data, error } = await query
+  query = query.range(offset, offset + limit - 1)
+
+  const { data, count, error } = await query
 
   if (error) throw error
 
-  const trends = data ?? []
-  return { trends, total: trends.length }
+  return {
+    trends: data ?? [],
+    total: count ?? 0,
+    hasMore: offset + limit < (count ?? 0),
+  }
 }
 
 const ALLOWED_INSIGHT_TYPES = ['market_size', 'growth_signal', 'community_demand'] as const
 
 export async function queryMarketInsights(options: {
   limit?: number
+  offset?: number
   insight_type?: string | null
-} = {}): Promise<{ insights: MarketInsight[]; total: number }> {
+} = {}): Promise<{ insights: MarketInsight[]; total: number; hasMore: boolean }> {
   const DEFAULT_LIMIT = 3
-  const MAX_LIMIT = 12
+  const MAX_LIMIT = 30
 
   const rawLimit = parseInt(String(options.limit ?? DEFAULT_LIMIT), 10)
   const limit = isNaN(rawLimit) ? DEFAULT_LIMIT : Math.min(Math.max(1, rawLimit), MAX_LIMIT)
+
+  const rawOffset = parseInt(String(options.offset ?? 0), 10)
+  const offset = isNaN(rawOffset) ? 0 : Math.max(0, rawOffset)
 
   const rawType = options.insight_type ?? null
   const insightType =
@@ -187,18 +205,22 @@ export async function queryMarketInsights(options: {
 
   let query = supabase
     .from('market_insights')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
-    .limit(limit)
 
   if (insightType) query = query.eq('insight_type', insightType)
 
-  const { data, error } = await query
+  query = query.range(offset, offset + limit - 1)
+
+  const { data, count, error } = await query
 
   if (error) throw error
 
-  const insights = data ?? []
-  return { insights, total: insights.length }
+  return {
+    insights: data ?? [],
+    total: count ?? 0,
+    hasMore: offset + limit < (count ?? 0),
+  }
 }
 
 export async function querySiteStats(): Promise<StatsResponse> {
