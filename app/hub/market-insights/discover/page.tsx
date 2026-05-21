@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import type { MarketInsight } from '@/app/lib/types'
 
 const PAGE_SIZE = 9
@@ -13,17 +14,20 @@ const TYPE_OPTIONS = [
 
 function InsightCard({ insight, index }: { insight: MarketInsight; index: number }) {
   return (
-    <div
+    <Link
+      href={`/hub/market-insights/research?id=${insight.id}`}
       className="insight-card"
       style={{
+        display: 'flex',
+        flexDirection: 'column',
         background: '#fffaf5',
         border: '1px solid #e2ddd7',
         borderRadius: '8px',
         padding: '18px 20px',
-        display: 'flex',
-        flexDirection: 'column',
         animation: 'fadeSlideIn 0.25s ease both',
         animationDelay: `${index * 40}ms`,
+        textDecoration: 'none',
+        cursor: 'pointer',
       }}
     >
       {insight.metric_value && (
@@ -51,7 +55,7 @@ function InsightCard({ insight, index }: { insight: MarketInsight; index: number
           {insight.source_label}
         </div>
       )}
-    </div>
+    </Link>
   )
 }
 

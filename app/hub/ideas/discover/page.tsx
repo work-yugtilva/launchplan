@@ -469,7 +469,7 @@ export default function IdeasDiscoverPage() {
             <EmptyState onClear={clearFilters} />
           ) : (
             ideas.map((idea, i) => (
-              <IdeaDiscoverCard key={idea.id} idea={idea} index={i} />
+              <IdeaDiscoverCard key={idea.id} idea={idea} index={i} linkHref={`/hub/ideas/research?id=${idea.id}`} />
             ))
           )}
         </div>
