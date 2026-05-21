@@ -42,6 +42,7 @@ export interface IdeaDiscoverCardProps {
   showUnsave?: boolean
   onUnsave?: (id: string) => void
   savedAt?: string
+  linkHref?: string
 }
 
 export default function IdeaDiscoverCard({
@@ -50,12 +51,13 @@ export default function IdeaDiscoverCard({
   showUnsave,
   onUnsave,
   savedAt,
+  linkHref,
 }: IdeaDiscoverCardProps) {
   const badges = getBadges(idea)
 
   return (
     <Link
-      href={`/ideas/${idea.slug}`}
+      href={linkHref ?? `/ideas/${idea.slug}`}
       className="idea-discover-card"
       style={{
         display: 'block',
