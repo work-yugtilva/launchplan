@@ -24,7 +24,24 @@ export async function middleware(request: NextRequest) {
   )
 
   // Refresh session — required for Server Components to read auth state
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  const path = request.nextUrl.pathname
+
+  // Protect /hub — redirect to /auth/login if no session
+  if (path.startsWith('/hub') && !user) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/auth/login'
+    loginUrl.searchParams.set('next', path)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Already logged in — redirect away from auth pages
+  if ((path === '/auth/login' || path === '/auth/signup') && user) {
+    const hubUrl = request.nextUrl.clone()
+    hubUrl.pathname = '/hub/browse'
+    hubUrl.search = ''
+    return NextResponse.redirect(hubUrl)
+  }
 
   return supabaseResponse
 }
