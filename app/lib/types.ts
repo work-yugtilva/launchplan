@@ -79,6 +79,7 @@ export interface Database {
           growth_pct: number | null
           description: string | null
           category: string | null
+          builder_takeaway: string | null
           created_at: string
           updated_at: string
         }
@@ -89,6 +90,7 @@ export interface Database {
           growth_pct?: number | null
           description?: string | null
           category?: string | null
+          builder_takeaway?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -99,6 +101,7 @@ export interface Database {
           growth_pct?: number | null
           description?: string | null
           category?: string | null
+          builder_takeaway?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -113,6 +116,8 @@ export interface Database {
           description: string | null
           insight_type: string | null
           source_label: string | null
+          newsletter_safe: boolean
+          confidence_band: string | null
           created_at: string
         }
         Insert: {
@@ -124,6 +129,8 @@ export interface Database {
           description?: string | null
           insight_type?: string | null
           source_label?: string | null
+          newsletter_safe?: boolean
+          confidence_band?: string | null
           created_at?: string
         }
         Update: {
@@ -135,6 +142,8 @@ export interface Database {
           description?: string | null
           insight_type?: string | null
           source_label?: string | null
+          newsletter_safe?: boolean
+          confidence_band?: string | null
           created_at?: string
         }
       }
@@ -233,6 +242,177 @@ export interface Database {
           id?: string
           user_id?: string
           idea_id?: string
+          created_at?: string
+        }
+      }
+      idea_pipeline_runs: {
+        Row: {
+          id: string
+          run_date: string
+          status: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count: number
+          drafted_idea_id: string | null
+          error_message: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          run_date: string
+          status?: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count?: number
+          drafted_idea_id?: string | null
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          run_date?: string
+          status?: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count?: number
+          drafted_idea_id?: string | null
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      idea_candidates: {
+        Row: {
+          id: string
+          pipeline_run_id: string
+          scout_output: Record<string, unknown>
+          editor_output: Record<string, unknown> | null
+          status: 'pending' | 'approved' | 'rejected'
+          drafted_idea_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          pipeline_run_id: string
+          scout_output: Record<string, unknown>
+          editor_output?: Record<string, unknown> | null
+          status?: 'pending' | 'approved' | 'rejected'
+          drafted_idea_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          pipeline_run_id?: string
+          scout_output?: Record<string, unknown>
+          editor_output?: Record<string, unknown> | null
+          status?: 'pending' | 'approved' | 'rejected'
+          drafted_idea_id?: string | null
+          created_at?: string
+        }
+      }
+      trend_pipeline_runs: {
+        Row: {
+          id: string
+          week_start: string
+          status: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count: number
+          error_message: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          week_start: string
+          status?: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count?: number
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          week_start?: string
+          status?: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count?: number
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      trend_candidates: {
+        Row: {
+          id: string
+          pipeline_run_id: string
+          scout_output: Record<string, unknown>
+          editor_output: Record<string, unknown> | null
+          status: 'pending' | 'approved' | 'rejected'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          pipeline_run_id: string
+          scout_output: Record<string, unknown>
+          editor_output?: Record<string, unknown> | null
+          status?: 'pending' | 'approved' | 'rejected'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          pipeline_run_id?: string
+          scout_output?: Record<string, unknown>
+          editor_output?: Record<string, unknown> | null
+          status?: 'pending' | 'approved' | 'rejected'
+          created_at?: string
+        }
+      }
+      insight_pipeline_runs: {
+        Row: {
+          id: string
+          week_start: string
+          status: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count: number
+          error_message: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          week_start: string
+          status?: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count?: number
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          week_start?: string
+          status?: 'pending' | 'running' | 'completed' | 'failed'
+          candidate_count?: number
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      insight_candidates: {
+        Row: {
+          id: string
+          pipeline_run_id: string
+          scout_output: Record<string, unknown>
+          editor_output: Record<string, unknown> | null
+          status: 'pending' | 'approved' | 'rejected'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          pipeline_run_id: string
+          scout_output: Record<string, unknown>
+          editor_output?: Record<string, unknown> | null
+          status?: 'pending' | 'approved' | 'rejected'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          pipeline_run_id?: string
+          scout_output?: Record<string, unknown>
+          editor_output?: Record<string, unknown> | null
+          status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
         }
       }
